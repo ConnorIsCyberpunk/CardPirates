@@ -1,0 +1,69 @@
+Unity Project Folder StructureA clean and organized guide to our project's asset folder structure, now with visual cues.Assets/
+├── 📂 _Project/
+│   │
+│   └── This is where **all our own work** goes. It contains everything we create: scenes,
+│       scripts, art, prefabs, sounds, and gameplay systems.
+│
+│   ├── 🎨 Art/
+│   │   │   For our custom visual assets, organized by type.
+│   │   ├── Characters/   -> Player and NPC textures, models, or animations.
+│   │   ├── Environment/  -> Ship interior, props, walls, barrels, lighting textures.
+│   │   ├── Props/        -> Small objects or decorations.
+│   │   └── UI/           -> Buttons, icons, and other interface graphics.
+│   │
+│   ├── 🎵 Audio/
+│   │   │   For all sound we add to the game.
+│   │   ├── Music/        -> Background tracks or ambient shanties.
+│   │   └── SFX/          -> Sound effects (cannon fire, waves, footsteps, parrot squawks).
+│   │
+│   ├── ✨ Materials/
+│   │   │   For materials we create or edit (e.g., custom wood texture or pirate fabric).
+│   │
+│   ├── 📦 Prefabs/
+│   │   │   For reusable objects that appear multiple times.
+│   │   ├── Characters/   -> Player models or ghosts.
+│   │   ├── Environment/  -> Tables, cannons, lanterns, barrels.
+│   │   ├── Items/        -> Throwable props, cards, treasure.
+│   │   └── UI/           -> Prefabbed menus, panels, and buttons.
+│   │
+│   ├── 🎬 Scenes/
+│   │   │   Contains all Unity scenes we design. Final scenes are kept here.
+│   │   ├── MainMenu.unity
+│   │   └── Ship.unity
+│   │
+│   ├── 📜 Scripts/
+│   │   │   For all C# scripts we write.
+│   │   ├── Managers/     -> Overall systems like GameManager, UIManager, or AudioManager.
+│   │   ├── Gameplay/     -> Movement, interactions, and round logic.
+│   │   ├── Networking/   -> Photon or Mirror network code.
+│   │   ├── UI/           -> Menu and HUD scripts.
+│   │   └── Utilities/    -> Helper or general-purpose scripts (timers, math, etc.).
+│   │
+│   ├── 🔧 Settings/
+│   │   │   For ScriptableObjects and configuration files (e.g., GameSettings.asset).
+│   │
+│   └── 🖌️ Shaders/
+│       │   Custom shaders for our visual style (e.g., lighting effects, outlines, ghost glow).
+│
+├── 📚 Documentation/
+│   │
+│   └── Contains project planning docs, asset licenses, and guides.
+│       ├── GDD.md -> The main Game Design Document.
+│       └── AssetLicenses.md -> Sources and licenses for all 3rd-party assets.
+│
+├── 🔌 Plugins/
+│   │
+│   └── Contains 3rd-party systems like Photon or Mirror. These are shared tools, **not for editing**.
+│
+├── 🖼️ StylizedPirateAssets/
+│   │
+│   └── Imported art pack. To modify an asset, first copy it to `_Project/Art/` or `_Project/Prefabs/`.
+│
+├── 🌊 StylizedWater/
+│   │
+│   └── Water shader package. Use the assets, but do not edit the originals.
+│
+└── ⚙️ Packages/
+    │
+    └── Managed by Unity automatically. **Never edit this folder manually**.
+
