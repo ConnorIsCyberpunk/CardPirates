@@ -55,15 +55,8 @@ Unity Project Folder StructureA clean and organized guide to our project's asset
 │   │
 │   └── Contains 3rd-party systems like Photon or Mirror. These are shared tools, **not for editing**.
 │
-├── 🖼️ StylizedPirateAssets/
-│   │
-│   └── Imported art pack. To modify an asset, first copy it to `_Project/Art/` or `_Project/Prefabs/`.
-│
-├── 🌊 StylizedWater/
-│   │
-│   └── Water shader package. Use the assets, but do not edit the originals.
 │
 └── ⚙️ Packages/
     │
-    └── Managed by Unity automatically. **Never edit this folder manually**.
+    └── Managed by Unity automatically. **Never edit this folder manually, please copy assets to respectful project folders**.
 
