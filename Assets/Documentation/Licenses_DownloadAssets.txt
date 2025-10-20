@@ -1,0 +1,10 @@
+Asset Licenses - Guilty As Arrr!
+This file will list all 3rd-party assets used in the project.
+
+Example Table:
+| Asset Name | Source | License | Notes |
+|-------------|--------|---------- -------|
+| Example Asset | Unity Asset Store | Standard Unity EULA | Example description |
+| Example Plugin | GitHub | MIT License | Networking tool |
+
+This helps us stay compliant with asset licenses and makes publishing easier later.
