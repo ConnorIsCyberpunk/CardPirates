@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/_Project/Scenes/Ship.unity
+    guid: 3e7373f304cb4d34a94a307c1a1c380a
   m_configObjects: {}

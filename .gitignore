@@ -1,16 +1,103 @@
+# ---------------------------
+# Unity core
+# ---------------------------
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
-[Bb]uild*/
+[Bb]uild/
+[Bb]uilds/
 [Ll]ogs/
-[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+UserSettings/
+sysinfo.txt
+
+# IL2CPP / caches
+[Ll]ibrary/il2cpp_cache/
+[Ll]ibrary/Bee/
+[Ll]ibrary/Artifacts/
+
+# Addressables (generated build outputs; keep your Addressables assets in Assets/)
+[Ll]ibrary/com.unity.addressables/
+
+# Unity Recorder (optional)
+Recordings/
+
+# Unity packages you might export
+*.unitypackage
+
+# ---------------------------
+# IDE / tooling
+# ---------------------------
+# Visual Studio / VS for Mac
 .vs/
-.vscode/
-.idea/
 *.csproj
 *.sln
+*.suo
 *.user
+*.userosscache
+*.sln.docstates
+
+# MonoDevelop / old Unity IDE
 *.pidb
 *.booproj
+*.svd
+*.pdb
+*.mdb
+*.tmp
+
+# JetBrains Rider
+.idea/
+*.DotSettings
+
+# VS Code
+.vscode/
+
+# ---------------------------
+# Platform-specific builds
+# ---------------------------
+# Android / Gradle
+.gradle/
+**/*.iml
+*.apk
+*.aab
+*.keystore
+*.jks
+# Android Exported Projects 
+# /Android/
+
+# iOS / Xcode
+*.ipa
+*.xcworkspace/
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+*.xcuserstate
+*.xcuserdatad/
+
+# ---------------------------
+# OS cruft
+# ---------------------------
 .DS_Store
+.AppleDouble
+.LSOverride
 Thumbs.db
+desktop.ini
+
+# ---------------------------
+# Unity Collaborate (old)
+# ---------------------------
+.collabignore
+
+# ---------------------------
+# Logs / crash dumps (outside Library/Logs)
+# ---------------------------
+*.stacktrace
+*.dmp
+
+# ---------------------------
+# Do NOT ignore these (for reference):
+#   - Assets/** (and all *.meta files)
+#   - ProjectSettings/**
+#   - Packages/manifest.json
+#   - Packages/packages-lock.json
+#   - Any files under Assets/_Project/** (including PhotonServerSettings.asset)
+# ---------------------------
