@@ -13,7 +13,7 @@ public class CharacterSelectUI : MonoBehaviourPunCallbacks
     public Button char3Button;
 
     [Header("Spawn settings")]
-    public string playerPrefabName = "Player";   // your Player prefab in Resources/
+    public string playerPrefabName = "Player";   // the Player prefab in Resources/
     public Vector3 spawnPos = Vector3.zero;
 
     void Awake()

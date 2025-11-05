@@ -1041,7 +1041,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1308144652}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -4.76, z: 0}
   m_LocalScale: {x: 2.9899557, y: 2.9899557, z: 2.9899557}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1192,6 +1192,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1842426810}
+  - component: {fileID: 1842426812}
   - component: {fileID: 1842426809}
   - component: {fileID: 1842426808}
   - component: {fileID: 1842426807}
@@ -1317,6 +1318,18 @@ MonoBehaviour:
   - UI3D_0
   - UI3D_1
   - UI3D_2
+--- !u!114 &1842426812
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1842426806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdac8870c78c3f94384423539329dfe0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1851335592
 GameObject:
   m_ObjectHideFlags: 0
@@ -1537,6 +1550,8 @@ GameObject:
   - component: {fileID: 1903585538}
   - component: {fileID: 1903585537}
   - component: {fileID: 1903585536}
+  - component: {fileID: 1903585539}
+  - component: {fileID: 1903585540}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1610,6 +1625,57 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1903585539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1903585535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93e2be1cff61f6249ab8e04827588b1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  lookOffset: {x: 0, y: 0, z: 0}
+  distance: 4
+  minDistance: 2
+  maxDistance: 6
+  zoomSpeed: 5
+  yaw: 0
+  pitch: 20
+  sensX: 2.5
+  sensY: 2
+  minPitch: -25
+  maxPitch: 70
+  posSmooth: 0.05
+  rotSmooth: 0.05
+  useCollision: 1
+  collisionRadius: 0.25
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  lockCursor: 1
+  toggleCursorKey: 27
+--- !u!114 &1903585540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1903585535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53e48c265ffca5242a6f9fc9ff84d0f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  distance: 4
+  height: 2
+  mouseSensitivity: 180
+  smooth: 10
+  invertY: 0
 --- !u!1 &1945436290
 GameObject:
   m_ObjectHideFlags: 0

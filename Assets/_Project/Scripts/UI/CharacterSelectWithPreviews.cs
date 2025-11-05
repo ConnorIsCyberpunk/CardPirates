@@ -27,6 +27,18 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
     readonly List<Camera> cams = new();
     readonly List<RenderTexture> rts = new();
 
+    public override void OnEnable()            // ✅ override instead of hiding
+    {
+        base.OnEnable();
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    public override void OnDisable()           // ✅ keep PUN’s bookkeeping intact
+    {
+        base.OnDisable();
+    }
+
     void Awake()
     {
         SetupPreviews();
@@ -56,7 +68,6 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
     {
         previewRoot = new GameObject("PreviewRoot").transform;
         previewRoot.gameObject.hideFlags = HideFlags.HideAndDontSave;
-        // keep them far away from the scene
         previewRoot.position = new Vector3(9999, 9999, 9999);
 
         for (int i = 0; i < previewSlots.Length; i++)
@@ -65,7 +76,6 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
             var prefab = database != null ? database.Get(i) : null;
             if (slot == null || prefab == null) continue;
 
-            // pick per-slot layer
             string layerName = (i < previewLayers.Length) ? previewLayers[i] : previewLayers[^1];
             int layer = LayerMask.NameToLayer(layerName);
             if (layer < 0)
@@ -74,25 +84,21 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
                 continue;
             }
 
-            // model
             var model = Instantiate(prefab, previewRoot);
             model.transform.localPosition = Vector3.zero;
             model.transform.localRotation = Quaternion.identity;
             SetLayerRecursively(model, layer);
-            model.AddComponent<PreviewSpinner>();
 
-            // camera
             var camGO = new GameObject($"PreviewCam_{i}");
             var cam   = camGO.AddComponent<Camera>();
-            cam.clearFlags     = CameraClearFlags.SolidColor;
+            cam.clearFlags      = CameraClearFlags.SolidColor;
             cam.backgroundColor = backgroundColor;
-            cam.cullingMask    = 1 << layer;  // render ONLY this slot's layer
-            cam.nearClipPlane  = 0.01f;
-            cam.farClipPlane   = 50f;
-            cam.fieldOfView    = 25f;
+            cam.cullingMask     = 1 << layer;
+            cam.nearClipPlane   = 0.01f;
+            cam.farClipPlane    = 50f;
+            cam.fieldOfView     = 25f;
             cams.Add(cam);
 
-            // RT -> RawImage
             var rt = new RenderTexture(renderSize, renderSize, 16, RenderTextureFormat.ARGB32);
             rt.name = $"RT_Char_{i}";
             rt.Create();
@@ -107,8 +113,7 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
     void Select(int skinIndex)
     {
         PhotonNetwork.Instantiate(playerPrefabName, spawnPos, Quaternion.identity, 0, new object[] { skinIndex });
-        gameObject.SetActive(false); // hide selector after choosing
-        OnDestroy(); // free preview cameras & RTs
+        gameObject.SetActive(false);
     }
 
     static void SetLayerRecursively(GameObject go, int layer)
@@ -126,17 +131,10 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
         Vector3 center = bounds.center;
         float radius = bounds.extents.magnitude;
 
-        cam.transform.position = center + Vector3.back; // start in front
+        cam.transform.position = center + Vector3.back;
         cam.transform.LookAt(center, Vector3.up);
 
-        // distance so object fits vertically
         float dist = radius / Mathf.Tan(cam.fieldOfView * Mathf.Deg2Rad * 0.5f);
         cam.transform.position = center - cam.transform.forward * dist;
     }
-}
-
-public class PreviewSpinner : MonoBehaviour
-{
-    public float speed = 25f;
-    void Update() => transform.Rotate(0f, speed * Time.unscaledDeltaTime, 0f, Space.World);
 }

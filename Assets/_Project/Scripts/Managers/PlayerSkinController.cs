@@ -1,36 +1,25 @@
-using System.Collections;
-using System.Collections.Generic;
-using Photon.Pun;
 using UnityEngine;
 
-public class PlayerSkinController : MonoBehaviourPun, IPunInstantiateMagicCallback
+public class PlayerSkinController : MonoBehaviour
 {
-    [Header("Assign in prefab")]
-    public Transform modelRoot;       // empty child where the visual goes (e.g., “ModelRoot”)
-    public SkinDatabase database;
+    [SerializeField] Transform modelRoot;
+    [SerializeField] SkinDatabase database;
 
-    GameObject currentVisual;
+    GameObject current;
 
-    public void OnPhotonInstantiate(PhotonMessageInfo info)
+    public void ApplySkin(int index)
     {
-        int skinIndex = 0;
-        var data = photonView.InstantiationData; // sent by PhotonNetwork.Instantiate(...)
-        if (data != null && data.Length > 0 && data[0] is int)
-            skinIndex = (int)data[0];
+        if (!database || !modelRoot) return;
 
-        ApplySkin(skinIndex);
-    }
+        if (current) Destroy(current);
+        var prefab = database.Get(index);
+        if (!prefab) return;
 
-    public void ApplySkin(int skinIndex)
-    {
-        if (currentVisual) Destroy(currentVisual);
-        var prefab = database != null ? database.Get(skinIndex) : null;
-        if (prefab == null)
-        {
-            Debug.LogWarning("PlayerSkinController: No skin prefab found for index " + skinIndex);
-            return;
-        }
-        var parent = modelRoot != null ? modelRoot : transform;
-        currentVisual = Instantiate(prefab, parent, false);
+        current = Instantiate(prefab, modelRoot);
+        current.transform.localPosition = Vector3.zero;
+        current.transform.localRotation = Quaternion.identity;
+        current.transform.localScale = Vector3.one;
+
+        Debug.Log($"[PlayerSkin] Applied skin #{index}");
     }
 }
