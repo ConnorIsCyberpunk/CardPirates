@@ -27,16 +27,11 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
     readonly List<Camera> cams = new();
     readonly List<RenderTexture> rts = new();
 
-    public override void OnEnable()            // ✅ override instead of hiding
+    public override void OnEnable()
     {
         base.OnEnable();
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-    }
-
-    public override void OnDisable()           // ✅ keep PUN’s bookkeeping intact
-    {
-        base.OnDisable();
     }
 
     void Awake()
@@ -72,7 +67,7 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
 
         for (int i = 0; i < previewSlots.Length; i++)
         {
-            var slot   = previewSlots[i];
+            var slot = previewSlots[i];
             var prefab = database != null ? database.Get(i) : null;
             if (slot == null || prefab == null) continue;
 
@@ -90,13 +85,13 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
             SetLayerRecursively(model, layer);
 
             var camGO = new GameObject($"PreviewCam_{i}");
-            var cam   = camGO.AddComponent<Camera>();
-            cam.clearFlags      = CameraClearFlags.SolidColor;
+            var cam = camGO.AddComponent<Camera>();
+            cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = backgroundColor;
-            cam.cullingMask     = 1 << layer;
-            cam.nearClipPlane   = 0.01f;
-            cam.farClipPlane    = 50f;
-            cam.fieldOfView     = 25f;
+            cam.cullingMask = 1 << layer;
+            cam.nearClipPlane = 0.01f;
+            cam.farClipPlane = 50f;
+            cam.fieldOfView = 25f;
             cams.Add(cam);
 
             var rt = new RenderTexture(renderSize, renderSize, 16, RenderTextureFormat.ARGB32);
@@ -104,7 +99,7 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
             rt.Create();
             rts.Add(rt);
             cam.targetTexture = rt;
-            slot.texture      = rt;
+            slot.texture = rt;
 
             FitCameraToObject(cam, model);
         }
@@ -112,10 +107,28 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
 
     void Select(int skinIndex)
     {
-        PhotonNetwork.Instantiate(playerPrefabName, spawnPos, Quaternion.identity, 0, new object[] { skinIndex });
+        // Use spawn point if found
+        Vector3 pos = Vector3.zero;
+        CharacterSpawner spawner = FindObjectOfType<CharacterSpawner>();
+        if (spawner != null && spawner.spawnPoint != null)
+        {
+            pos = spawner.spawnPoint.position;
+        }
+        else if (spawner != null)
+        {
+            pos = spawner.transform.position;
+        }
+        else
+        {
+            Debug.LogWarning("[CharacterSelectWithPreviews] No spawner found, defaulting to (0,0,0)");
+        }
+
+        PhotonNetwork.Instantiate(playerPrefabName, pos, Quaternion.identity, 0, new object[] { skinIndex });
         gameObject.SetActive(false);
+        OnDestroy();
     }
 
+    // --- Helpers that were missing ---
     static void SetLayerRecursively(GameObject go, int layer)
     {
         foreach (var t in go.GetComponentsInChildren<Transform>(true))
