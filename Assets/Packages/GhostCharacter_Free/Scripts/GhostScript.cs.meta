@@ -9,3 +9,10 @@ MonoImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 267003
+  packageName: Ghost character Free
+  packageVersion: 1.0
+  assetPath: Assets/GhostCharacter_Free/Scripts/GhostScript.cs
+  uploadId: 617687

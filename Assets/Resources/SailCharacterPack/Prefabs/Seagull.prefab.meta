@@ -6,3 +6,10 @@ NativeFormatImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 18880
+  packageName: Sail Character Pack
+  packageVersion: Initial
+  assetPath: Assets/SailCharacterPack/Prefabs/Seagull.prefab
+  uploadId: 7869

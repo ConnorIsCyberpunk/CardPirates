@@ -9,3 +9,10 @@ MonoImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 18880
+  packageName: Sail Character Pack
+  packageVersion: Initial
+  assetPath: Assets/SailCharacterPack/Scripts/SmallFishEmitter.cs
+  uploadId: 7869

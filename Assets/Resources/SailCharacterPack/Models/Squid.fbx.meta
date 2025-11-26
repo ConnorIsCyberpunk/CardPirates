@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: 414a2b908ec0e2143ac2b3c84224c16c
 ModelImporter:
-  serializedVersion: 21300
+  serializedVersion: 24200
   internalIDToNameTable:
   - first:
       1: 100000
@@ -67,8 +67,6 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: 
-    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -173,6 +171,7 @@ ModelImporter:
     addColliders: 0
     useSRGBMaterialColor: 1
     sortHierarchyByName: 1
+    importPhysicalCameras: 0
     importVisibility: 0
     importBlendShapes: 1
     importCameras: 0
@@ -190,6 +189,9 @@ ModelImporter:
     maxBonesPerVertex: 4
     minBoneWeight: 0.001
     optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
     meshOptimizationFlags: -1
     indexFormat: 1
     secondaryUVAngleDistortion: 8
@@ -233,8 +235,16 @@ ModelImporter:
   humanoidOversampling: 1
   avatarSetup: 1
   addHumanoidExtraRootOnlyWhenUsingAvatar: 0
+  importBlendShapeDeformPercent: 0
   remapMaterialsIfMaterialImportModeIsNone: 1
   additionalBone: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 18880
+  packageName: Sail Character Pack
+  packageVersion: Initial
+  assetPath: Assets/SailCharacterPack/Models/Squid.fbx
+  uploadId: 7869

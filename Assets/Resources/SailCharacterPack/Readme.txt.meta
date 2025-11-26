@@ -5,3 +5,10 @@ TextScriptImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 18880
+  packageName: Sail Character Pack
+  packageVersion: Initial
+  assetPath: Assets/SailCharacterPack/Readme.txt
+  uploadId: 7869
