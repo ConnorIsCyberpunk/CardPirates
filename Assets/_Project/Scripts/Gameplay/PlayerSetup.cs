@@ -3,39 +3,92 @@ using UnityEngine;
 
 public class PlayerSetup : MonoBehaviourPun
 {
-    public Transform cameraAnchor;               // assign child "CameraAnchor"
-    PlayerSkinController skin;
+    public Transform cameraAnchor;
 
-    void Awake()
-    {
-        skin = GetComponentInChildren<PlayerSkinController>(true);
+    public bool isCaptain = false;
+    public bool isImposter = false;
 
-        int skinIndex = 0;
-        var data = photonView.InstantiationData;
-        if (data != null && data.Length > 0) skinIndex = (int)data[0];
-
-        if (skin)
-            skin.ApplySkin(skinIndex);          // run for BOTH local and remote
-        else
-            Debug.LogWarning("[PlayerSetup] Missing PlayerSkinController.");
-    }
+    public PlayerBio myBio;
 
     void Start()
     {
-        if (!photonView.IsMine) return;
+        if (photonView.IsMine)
+        {
+            AttachCamera();
+            GenerateBio();
+            GameRoundManager.Instance.RegisterPlayer(this);
+        }
+    }
 
-        // lock the cursor for gameplay
+    void AttachCamera()
+    {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // attach a simple camera follow (example)
         var cam = Camera.main;
-        if (cam)
+        var follow = cam.gameObject.GetComponent<ThirdPersonCamera>();
+        if (!follow) follow = cam.gameObject.AddComponent<ThirdPersonCamera>();
+
+        follow.target = cameraAnchor;
+        follow.EnableControl(true);
+    }
+
+    void GenerateBio()
+    {
+        myBio = PlayerBioGenerator.Instance.GenerateBio(PhotonNetwork.NickName);
+        BioPanelUI.Instance.ShowBio(myBio);
+    }
+
+    // ---------- ROLE ASSIGNMENTS ----------
+    public void SetCaptain(bool value)
+    {
+        isCaptain = value;
+        if (photonView.IsMine && value)
+            Debug.Log("YOU ARE THE CAPTAIN");
+    }
+
+    public void SetImposter(bool value)
+    {
+        isImposter = value;
+        if (photonView.IsMine && value)
+            Debug.Log("YOU ARE THE IMPOSTER");
+    }
+
+    // ---------- ROUND ACTIONS ----------
+    public void TeleportTo(Vector3 pos)
+    {
+        if (photonView.IsMine)
+            transform.position = pos;
+    }
+
+    public void Eliminate()
+    {
+        if (photonView.IsMine)
         {
-            var follow = cam.GetComponent<ThirdPersonCamera>();
-            if (!follow) follow = cam.gameObject.AddComponent<ThirdPersonCamera>();
-            follow.target = cameraAnchor;
-            follow.EnableControl(true);
+            gameObject.SetActive(false);
+            Debug.Log("You have been eliminated.");
         }
+    }
+
+    // ---------- CAPTAIN VOTING ----------
+    public void ShowVotingUI(System.Collections.Generic.List<PlayerSetup> players)
+    {
+        if (photonView.IsMine && isCaptain)
+            VoteUI.Instance.Open(players);
+    }
+
+    // ---------- IMPOSTER KILL ----------
+    public void TryImposterKill(PlayerSetup target)
+    {
+        if (!isImposter || !photonView.IsMine) return;
+
+        photonView.RPC("RPC_Kill", RpcTarget.All, target.photonView.ViewID);
+    }
+
+    [PunRPC]
+    void RPC_Kill(int viewID)
+    {
+        PlayerSetup target = PhotonView.Find(viewID).GetComponent<PlayerSetup>();
+        target.Eliminate();
     }
 }
