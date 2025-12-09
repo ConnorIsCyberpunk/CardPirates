@@ -40,6 +40,7 @@ MonoBehaviour:
   - DestroyRpc
   - HeresWhy
   - RpcAnnounceRole
+  - RpcGetKilled
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

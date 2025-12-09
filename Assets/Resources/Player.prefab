@@ -303,6 +303,7 @@ GameObject:
   - component: {fileID: 1880635309256551335}
   - component: {fileID: 5783030692477446119}
   - component: {fileID: 2803103159844962990}
+  - component: {fileID: 3612628673506876537}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -450,3 +451,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraAnchor: {fileID: 4966733330939645230}
+--- !u!114 &3612628673506876537
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8771620188498508992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 843bcd8966ade1444a5128141a7ae7ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ImposterAbility
+  killRange: 2.5
+  killKey: 102
