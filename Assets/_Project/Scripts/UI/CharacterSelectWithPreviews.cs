@@ -9,20 +9,20 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
     public SkinDatabase database;
 
     [Header("UI")]
-    public RawImage[] previewSlots;   // size 3
-    public Button[] selectButtons;    // size 3
+    public RawImage[] previewSlots;
+    public Button[] selectButtons;
 
-    [Header("Spawn")]
-    public string playerPrefabName = "Player";   // must be in Resources/
-    public Vector3 spawnPos = Vector3.zero;
+    [Header("Spawn Settings")]
+    public string playerPrefabName = "Player";
+    
+    // CHANGED: We now require you to drag the SpawnPoint here
+    public Transform specificSpawnPoint; 
 
     [Header("Preview Render")]
     public int renderSize = 256;
     public Color backgroundColor = new Color(0, 0, 0, 0);
-    [Tooltip("One unique layer per preview slot (create in Tags & Layers).")]
     public string[] previewLayers = new[] { "UI3D_0", "UI3D_1", "UI3D_2" };
 
-    // internals
     Transform previewRoot;
     readonly List<Camera> cams = new();
     readonly List<RenderTexture> rts = new();
@@ -37,8 +37,6 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
     void Awake()
     {
         SetupPreviews();
-
-        // hook buttons
         for (int i = 0; i < selectButtons.Length; i++)
         {
             int idx = i;
@@ -47,22 +45,11 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
         }
     }
 
-    public override void OnJoinedRoom()
-    {
-        gameObject.SetActive(true);
-    }
-
-    void OnDestroy()
-    {
-        foreach (var c in cams) if (c) Destroy(c.gameObject);
-        foreach (var rt in rts) if (rt) rt.Release();
-        if (previewRoot) Destroy(previewRoot.gameObject);
-    }
+    public override void OnJoinedRoom() { gameObject.SetActive(true); }
 
     void SetupPreviews()
     {
         previewRoot = new GameObject("PreviewRoot").transform;
-        previewRoot.gameObject.hideFlags = HideFlags.HideAndDontSave;
         previewRoot.position = new Vector3(9999, 9999, 9999);
 
         for (int i = 0; i < previewSlots.Length; i++)
@@ -73,11 +60,7 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
 
             string layerName = (i < previewLayers.Length) ? previewLayers[i] : previewLayers[^1];
             int layer = LayerMask.NameToLayer(layerName);
-            if (layer < 0)
-            {
-                Debug.LogWarning($"CharacterSelectWithPreviews: Layer '{layerName}' not found. Create it in Project Settings > Tags and Layers.");
-                continue;
-            }
+            if (layer < 0) continue;
 
             var model = Instantiate(prefab, previewRoot);
             model.transform.localPosition = Vector3.zero;
@@ -89,14 +72,9 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = backgroundColor;
             cam.cullingMask = 1 << layer;
-            cam.nearClipPlane = 0.01f;
-            cam.farClipPlane = 50f;
-            cam.fieldOfView = 25f;
             cams.Add(cam);
 
             var rt = new RenderTexture(renderSize, renderSize, 16, RenderTextureFormat.ARGB32);
-            rt.name = $"RT_Char_{i}";
-            rt.Create();
             rts.Add(rt);
             cam.targetTexture = rt;
             slot.texture = rt;
@@ -107,28 +85,40 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
 
     void Select(int skinIndex)
     {
-        // Use spawn point if found
+        // 1. USE THE DRAGGED SPAWN POINT
         Vector3 pos = Vector3.zero;
-        CharacterSpawner spawner = FindObjectOfType<CharacterSpawner>();
-        if (spawner != null && spawner.spawnPoint != null)
+        Quaternion rot = Quaternion.identity;
+
+        if (specificSpawnPoint != null)
         {
-            pos = spawner.spawnPoint.position;
-        }
-        else if (spawner != null)
-        {
-            pos = spawner.transform.position;
+            pos = specificSpawnPoint.position;
+            rot = specificSpawnPoint.rotation;
         }
         else
         {
-            Debug.LogWarning("[CharacterSelectWithPreviews] No spawner found, defaulting to (0,0,0)");
+            Debug.LogError("NO SPAWN POINT ASSIGNED! Spawning at 0,0,0");
         }
 
-        PhotonNetwork.Instantiate(playerPrefabName, pos, Quaternion.identity, 0, new object[] { skinIndex });
+        // 2. Spawn Player
+        PhotonNetwork.Instantiate(playerPrefabName, pos, rot, 0, new object[] { skinIndex });
+
+        // 3. Trigger Roles (Master Client Only)
+        if (PhotonNetwork.IsMasterClient)
+        {
+            if (RoleManager.Instance != null)
+            {
+                RoleManager.Instance.DistributeRoles();
+            }
+            else
+            {
+                Debug.LogError("RoleManager is missing from the scene!");
+            }
+        }
+
         gameObject.SetActive(false);
-        OnDestroy();
+        Destroy(gameObject, 0.5f);
     }
 
-    // --- Helpers that were missing ---
     static void SetLayerRecursively(GameObject go, int layer)
     {
         foreach (var t in go.GetComponentsInChildren<Transform>(true))
