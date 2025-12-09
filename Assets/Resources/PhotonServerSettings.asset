@@ -41,6 +41,7 @@ MonoBehaviour:
   - HeresWhy
   - RpcAnnounceRole
   - RpcGetKilled
+  - RpcEjectPlayer
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
