@@ -5,69 +5,67 @@ using Photon.Pun;
 
 public class BoatTeleport : MonoBehaviour
 {
-    [Header("Link")]
     public Transform targetArrivalPoint; 
-
-    [Header("Settings")]
-    public float interactionRange = 4.0f; // NEW SETTING
-
-    [Header("UI (Optional)")]
+    public float interactionRange = 4.0f;
     public Image fadeImage; 
 
     private bool isTeleporting = false;
-    private Transform localPlayerTransform;
+    private Transform localPlayer;
 
-    void Update()
+    void Start()
     {
-        if (isTeleporting) return;
+        StartCoroutine(FindPlayerRoutine());
+    }
 
-        // 1. Find Local Player (Cache it)
-        if (localPlayerTransform == null)
+    // Keep trying to find the player until they spawn
+    IEnumerator FindPlayerRoutine() 
+    {
+        while (localPlayer == null) 
         {
             foreach (GameObject p in GameObject.FindGameObjectsWithTag("Player"))
             {
                 PhotonView pv = p.GetComponent<PhotonView>();
                 if (pv != null && pv.IsMine)
                 {
-                    localPlayerTransform = p.transform;
-                    break;
+                    localPlayer = p.transform;
                 }
             }
-            return;
-        }
-
-        // 2. MATH CHECK (No Physics needed)
-        float distance = Vector3.Distance(transform.position, localPlayerTransform.position);
-        
-        if (distance < interactionRange)
-        {
-            StartCoroutine(TeleportSequence(localPlayerTransform));
+            yield return new WaitForSeconds(0.5f);
         }
     }
 
-    IEnumerator TeleportSequence(Transform player)
+    void Update()
+    {
+        if (isTeleporting || localPlayer == null) return;
+
+        float dist = Vector3.Distance(transform.position, localPlayer.position);
+        
+        if (dist < interactionRange)
+        {
+            StartCoroutine(TeleportSequence());
+        }
+    }
+
+    IEnumerator TeleportSequence()
     {
         isTeleporting = true;
 
-        // Fade Out
         if (fadeImage)
         {
             fadeImage.enabled = true;
-            fadeImage.color = Color.black; // Instant black for test
+            fadeImage.color = Color.black; 
         }
 
-        // Move
-        CharacterController cc = player.GetComponent<CharacterController>();
+        CharacterController cc = localPlayer.GetComponent<CharacterController>();
         if (cc) cc.enabled = false;
 
-        player.position = targetArrivalPoint.position;
-        player.rotation = targetArrivalPoint.rotation;
+        localPlayer.position = targetArrivalPoint.position;
+        localPlayer.rotation = targetArrivalPoint.rotation;
 
         yield return new WaitForSeconds(0.2f); 
 
         if (cc) cc.enabled = true;
 
-        // Fade In
         if (fadeImage)
         {
             yield return new WaitForSeconds(0.5f);

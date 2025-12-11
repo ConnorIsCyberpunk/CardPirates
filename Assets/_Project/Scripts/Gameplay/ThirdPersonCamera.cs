@@ -2,30 +2,53 @@ using UnityEngine;
 
 public class ThirdPersonCamera : MonoBehaviour
 {
+    [Header("Targets")]
     public Transform target;
+
+    [Header("Settings")]
     public float distance = 5f;
     public float height = 2f;
-    public float mouseSensitivity = 180f;
-    public float smooth = 10f;
+    public float mouseSensitivity = 5.0f; // Adjusted to be normal range
+    public float smoothSpeed = 10f;
+    
+    [Header("Controls")]
     public bool invertY = false;
 
-    float yaw, pitch;
+    private float yaw;
+    private float pitch;
 
-    public void EnableControl(bool on) { enabled = on; }
+    // Helper to toggle input
+    public void EnableControl(bool isOn) 
+    { 
+        this.enabled = isOn; 
+    }
 
     void LateUpdate()
     {
         if (!target) return;
 
-        yaw   += Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float my = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-        pitch += (invertY ? my : -my);
+        // Basic Input
+        float mx = Input.GetAxis("Mouse X") * mouseSensitivity;
+        float my = Input.GetAxis("Mouse Y") * mouseSensitivity;
+
+        yaw += mx;
+        if (invertY) pitch += my;
+        else pitch -= my;
+
         pitch = Mathf.Clamp(pitch, -60f, 75f);
 
-        var rot = Quaternion.Euler(pitch, yaw, 0f);
-        var desired = target.position + rot * (Vector3.back * distance) + Vector3.up * height;
+        // Calculate Position
+        Quaternion currentRotation = Quaternion.Euler(pitch, yaw, 0f);
+        
+        Vector3 offset = (Vector3.back * distance) + (Vector3.up * height);
+        Vector3 desiredPosition = target.position + (currentRotation * offset);
 
-        transform.position = Vector3.Lerp(transform.position, desired, 1f - Mathf.Exp(-smooth * Time.deltaTime));
-        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(target.position - transform.position, Vector3.up), 1f - Mathf.Exp(-smooth * Time.deltaTime));
+        // Smooth Movement (Standard Student Lerp)
+        transform.position = Vector3.Lerp(transform.position, desiredPosition, smoothSpeed * Time.deltaTime);
+        
+        // Smooth Rotation
+        Vector3 lookDir = target.position - transform.position;
+        Quaternion lookRot = Quaternion.LookRotation(lookDir);
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, smoothSpeed * Time.deltaTime);
     }
 }

@@ -3,15 +3,13 @@ using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro; // Keep this just in case
-using UnityEngine.UI; // Needed for Legacy Text fallback
+using TMPro; 
+using UnityEngine.UI; 
 
 public class RoleManager : MonoBehaviourPunCallbacks
 {
-    [Header("UI References")]
+    [Header("UI")]
     public GameObject rolePanel;
-    
-    // CHANGE THIS: We now accept the raw GameObject so you can definitely drag it in
     public GameObject roleTextObject; 
 
     [Header("Settings")]
@@ -32,12 +30,24 @@ public class RoleManager : MonoBehaviourPunCallbacks
         hasDistributed = true;
 
         Player[] players = PhotonNetwork.PlayerList;
+        // Randomize list
         List<Player> shuffled = players.OrderBy(x => Random.value).ToList();
 
         for (int i = 0; i < shuffled.Count; i++)
         {
-            string roleName = (i == 0) ? "CAPTAIN" : (i == 1 && shuffled.Count >= 2 ? "SABOTEUR" : "Crewmate");
-            string colorHex = (i == 0) ? "#FFD700" : (i == 1 && shuffled.Count >= 2 ? "#FF0000" : "#FFFFFF");
+            string roleName = "Crewmate";
+            string colorHex = "#FFFFFF"; // White
+
+            if (i == 0)
+            {
+                roleName = "CAPTAIN";
+                colorHex = "#FFD700"; // Gold
+            }
+            else if (i == 1 && shuffled.Count >= 2)
+            {
+                roleName = "SABOTEUR";
+                colorHex = "#FF0000"; // Red
+            }
             
             photonView.RPC("RpcAnnounceRole", shuffled[i], roleName, colorHex);
         }
@@ -46,36 +56,37 @@ public class RoleManager : MonoBehaviourPunCallbacks
     [PunRPC]
     void RpcAnnounceRole(string role, string colorHex)
     {
-        Debug.Log($"[RoleManager] Role Received: {role}"); // Debug check
-
         if (rolePanel) rolePanel.SetActive(true);
         
         if (roleTextObject) 
         {
             string msg = "YOU ARE THE\n<size=120%>" + role + "</size>";
             
-            // TRY BOTH TYPES (Foolproof)
+            // Check for TextMeshPro or standard Text
             TMP_Text tmp = roleTextObject.GetComponent<TMP_Text>();
             Text legacy = roleTextObject.GetComponent<Text>();
+
+            Color c = Color.white;
+            ColorUtility.TryParseHtmlString(colorHex, out c);
 
             if (tmp != null)
             {
                 tmp.text = msg;
-                if(ColorUtility.TryParseHtmlString(colorHex, out Color c)) tmp.color = c;
+                tmp.color = c;
             }
             else if (legacy != null)
             {
                 legacy.text = msg;
-                if(ColorUtility.TryParseHtmlString(colorHex, out Color c)) legacy.color = c;
+                legacy.color = c;
             }
         }
 
-        // Save Role
+        // Save Role to player properties
         ExitGames.Client.Photon.Hashtable props = new ExitGames.Client.Photon.Hashtable();
         props["Role"] = role;
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
 
-        Invoke(nameof(HideUI), revealDuration);
+        Invoke("HideUI", revealDuration);
     }
 
     void HideUI()

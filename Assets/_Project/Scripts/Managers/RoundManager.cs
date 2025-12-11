@@ -3,18 +3,18 @@ using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
-using TMPro; // Use TextMeshPro for the buttons
+using TMPro; 
 
 public class RoundManager : MonoBehaviourPunCallbacks
 {
     [Header("Settings")]
     public float roundTime = 120f;
-    public Transform teleportTarget; // Assign your SpawnPoint here
+    public Transform teleportTarget; 
 
-    [Header("UI References")]
+    [Header("UI")]
     public GameObject courtPanel;
-    public GameObject buttonPrefab; // Drag your Button Prefab here
-    public TMP_Text timerText;      // Optional: Drag a text to see the countdown
+    public GameObject buttonPrefab; 
+    public TMP_Text timerText;      
 
     private bool isCourtSession = false;
     private float currentTime;
@@ -24,7 +24,6 @@ public class RoundManager : MonoBehaviourPunCallbacks
         currentTime = roundTime;
         if(courtPanel) courtPanel.SetActive(false);
         
-        // Auto-find SpawnPoint if not set
         if (!teleportTarget) 
         {
             GameObject sp = GameObject.Find("SpawnPoint");
@@ -34,14 +33,11 @@ public class RoundManager : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        // Only Master Client controls the official game time, 
-        // but for a simple prototype, everyone running their own timer is safer/easier
         if (!isCourtSession)
         {
             currentTime -= Time.deltaTime;
             
-            // Update Visual Timer
-            if (timerText) timerText.text = $"TIME: {Mathf.Ceil(currentTime)}";
+            if (timerText) timerText.text = "TIME: " + Mathf.Ceil(currentTime);
 
             if (currentTime <= 0)
             {
@@ -55,12 +51,10 @@ public class RoundManager : MonoBehaviourPunCallbacks
         if (isCourtSession) return;
         isCourtSession = true;
 
-        // 1. TELEPORT TO DECK
-        // We move our own local player
+        // Move local player to court
         GameObject myPlayer = GetLocalPlayerObject();
         if (myPlayer && teleportTarget)
         {
-            // Disable CharacterController briefly to allow teleport
             CharacterController cc = myPlayer.GetComponent<CharacterController>();
             if (cc) cc.enabled = false;
             
@@ -69,10 +63,8 @@ public class RoundManager : MonoBehaviourPunCallbacks
             if (cc) cc.enabled = true;
         }
 
-        // 2. SHOW UI
         GenerateCourtUI();
         
-        // 3. UNLOCK CURSOR
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
@@ -82,10 +74,9 @@ public class RoundManager : MonoBehaviourPunCallbacks
         if (!courtPanel || !buttonPrefab) return;
         courtPanel.SetActive(true);
 
-        // Clean up old buttons
         foreach (Transform child in courtPanel.transform) Destroy(child.gameObject);
 
-        // Am I the Captain?
+        // Check if I am captain
         object roleObj;
         bool isCaptain = false;
         if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue("Role", out roleObj))
@@ -93,43 +84,33 @@ public class RoundManager : MonoBehaviourPunCallbacks
             isCaptain = ((string)roleObj == "CAPTAIN");
         }
 
-        // Generate a button for every OTHER player
         foreach (Player p in PhotonNetwork.PlayerList)
         {
-            if (p == PhotonNetwork.LocalPlayer) continue; // Don't eject yourself
+            if (p == PhotonNetwork.LocalPlayer) continue; 
 
             GameObject btnObj = Instantiate(buttonPrefab, courtPanel.transform);
             
-            // Setup Text
             TMP_Text t = btnObj.GetComponentInChildren<TMP_Text>();
-            if (t) t.text = isCaptain ? $"EJECT {p.NickName}" : $"ACCUSE {p.NickName}";
+            if (t) t.text = isCaptain ? "EJECT " + p.NickName : "ACCUSE " + p.NickName;
 
-            // Setup Click Action
             Button b = btnObj.GetComponent<Button>();
             if (isCaptain)
             {
-                // CAPTAIN POWER: Clicking actually kills them
-                Player target = p; // Cache for lambda
+                Player target = p; 
                 b.onClick.AddListener(() => EjectPlayer(target));
-                // Color it Red for danger
                 b.GetComponent<Image>().color = new Color(1, 0.5f, 0.5f);
             }
             else
             {
-                // CREW POWER: Clicking does nothing in MVP (Voice Chat is used instead)
                 b.interactable = false; 
             }
         }
     }
 
-    // --- CAPTAIN ACTIONS ---
-
     void EjectPlayer(Player target)
     {
-        // Send RPC to everyone to execute this player
         photonView.RPC("RpcEjectPlayer", RpcTarget.All, target);
         
-        // Close UI
         courtPanel.SetActive(false);
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -138,38 +119,32 @@ public class RoundManager : MonoBehaviourPunCallbacks
     [PunRPC]
     void RpcEjectPlayer(Player targetPlayer)
     {
-        // Find the player object belonging to that player
-        GameObject[] players = GameObject.FindGameObjectsWithTag("Player"); // Make sure Player Prefab is tagged "Player"
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player"); 
         
         foreach (GameObject pObj in players)
         {
             PhotonView pv = pObj.GetComponent<PhotonView>();
             if (pv && pv.Owner == targetPlayer)
             {
-                Debug.Log($"{targetPlayer.NickName} WALKS THE PLANK!");
+                Debug.Log(targetPlayer.NickName + " was ejected.");
                 
-                // PHYSICS YEET
+                // Add physics to throw them off ship
                 Rigidbody rb = pObj.GetComponent<Rigidbody>();
-                if (!rb) rb = pObj.AddComponent<Rigidbody>(); // Add RB if missing
+                if (!rb) rb = pObj.AddComponent<Rigidbody>(); 
                 
                 CharacterController cc = pObj.GetComponent<CharacterController>();
-                if (cc) cc.enabled = false; // Disable CC so Physics can take over
+                if (cc) cc.enabled = false; 
                 
                 rb.isKinematic = false;
                 rb.useGravity = true;
                 
-                // Throw them sideways (Off the ship) + Up
                 rb.AddForce((Vector3.right * 500f) + (Vector3.up * 200f));
-                
-                // Add spin for drama
                 rb.AddTorque(Random.insideUnitSphere * 100f);
-                
                 return;
             }
         }
     }
 
-    // Helper to find my own object
     GameObject GetLocalPlayerObject()
     {
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");

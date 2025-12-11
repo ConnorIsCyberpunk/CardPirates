@@ -14,18 +14,16 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
 
     [Header("Spawn Settings")]
     public string playerPrefabName = "Player";
-    
-    // CHANGED: We now require you to drag the SpawnPoint here
     public Transform specificSpawnPoint; 
 
     [Header("Preview Render")]
     public int renderSize = 256;
     public Color backgroundColor = new Color(0, 0, 0, 0);
-    public string[] previewLayers = new[] { "UI3D_0", "UI3D_1", "UI3D_2" };
+    public string[] previewLayers = new string[] { "UI3D_0", "UI3D_1", "UI3D_2" };
 
     Transform previewRoot;
-    readonly List<Camera> cams = new();
-    readonly List<RenderTexture> rts = new();
+    List<Camera> cams = new List<Camera>();
+    List<RenderTexture> rts = new List<RenderTexture>();
 
     public override void OnEnable()
     {
@@ -45,7 +43,10 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
         }
     }
 
-    public override void OnJoinedRoom() { gameObject.SetActive(true); }
+    public override void OnJoinedRoom() 
+    { 
+        gameObject.SetActive(true); 
+    }
 
     void SetupPreviews()
     {
@@ -56,9 +57,14 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
         {
             var slot = previewSlots[i];
             var prefab = database != null ? database.Get(i) : null;
+            
             if (slot == null || prefab == null) continue;
 
-            string layerName = (i < previewLayers.Length) ? previewLayers[i] : previewLayers[^1];
+            // Assign unique layer for each preview camera
+            string layerName = "";
+            if (i < previewLayers.Length) layerName = previewLayers[i];
+            else layerName = previewLayers[previewLayers.Length - 1];
+
             int layer = LayerMask.NameToLayer(layerName);
             if (layer < 0) continue;
 
@@ -67,7 +73,7 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
             model.transform.localRotation = Quaternion.identity;
             SetLayerRecursively(model, layer);
 
-            var camGO = new GameObject($"PreviewCam_{i}");
+            var camGO = new GameObject("PreviewCam_" + i);
             var cam = camGO.AddComponent<Camera>();
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = backgroundColor;
@@ -85,7 +91,6 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
 
     void Select(int skinIndex)
     {
-        // 1. USE THE DRAGGED SPAWN POINT
         Vector3 pos = Vector3.zero;
         Quaternion rot = Quaternion.identity;
 
@@ -96,22 +101,16 @@ public class CharacterSelectWithPreviews : MonoBehaviourPunCallbacks
         }
         else
         {
-            Debug.LogError("NO SPAWN POINT ASSIGNED! Spawning at 0,0,0");
+            Debug.LogError("Spawn Point not assigned, using zero");
         }
 
-        // 2. Spawn Player
         PhotonNetwork.Instantiate(playerPrefabName, pos, rot, 0, new object[] { skinIndex });
 
-        // 3. Trigger Roles (Master Client Only)
         if (PhotonNetwork.IsMasterClient)
         {
             if (RoleManager.Instance != null)
             {
                 RoleManager.Instance.DistributeRoles();
-            }
-            else
-            {
-                Debug.LogError("RoleManager is missing from the scene!");
             }
         }
 

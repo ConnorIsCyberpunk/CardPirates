@@ -1,77 +1,67 @@
 using UnityEngine;
-using UnityEngine.UI; // If using Legacy Text
-using TMPro;          // If using TextMeshPro
 using Photon.Pun;
 using Photon.Realtime;
 
 public class ImposterAbility : MonoBehaviourPun
 {
-    [Header("Settings")]
     public float killRange = 3.0f;
     public KeyCode killKey = KeyCode.F;
 
-    private GameObject killUI; // The UI object we toggle
-    private bool hasKilledThisRound = false;
+    private GameObject killUI; 
+    private bool hasKilled = false;
+    private bool isSaboteur = false;
 
     void Start()
     {
-        // AUTO-FIND THE UI so you don't have to link it
-        // It looks for the object named "KillPromptText" inside GameUI
+        // Find the prompt UI
         GameObject found = GameObject.Find("KillPromptText");
         if (found) 
         {
             killUI = found;
-            killUI.SetActive(false); // Ensure hidden at start
+            killUI.SetActive(false); 
+        }
+
+        // Check role once at start
+        if (photonView.IsMine)
+        {
+             object myRole;
+             if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue("Role", out myRole))
+             {
+                 if ((string)myRole == "SABOTEUR") isSaboteur = true;
+             }
         }
     }
 
     void Update()
     {
-        if (!photonView.IsMine) return;
+        if (!photonView.IsMine || !isSaboteur) return;
+        if (hasKilled) return;
 
-        // 1. Role Check: Am I a Saboteur?
-        object myRole;
-        if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue("Role", out myRole))
-        {
-            if ((string)myRole != "SABOTEUR") return; 
-        }
-        else return; 
-
-        // 2. Cooldown Check
-        if (hasKilledThisRound) 
-        {
-            if(killUI) killUI.SetActive(false);
-            return;
-        }
-
-        // 3. Raycast for Victim
         CheckForVictim();
     }
 
     void CheckForVictim()
     {
         RaycastHit hit;
-        // Shoot ray from chest height
+        
         if (Physics.Raycast(transform.position + Vector3.up, transform.forward, out hit, killRange))
         {
             PhotonView targetView = hit.collider.GetComponent<PhotonView>();
             
-            // Is it a player and NOT me?
             if (targetView != null && !targetView.IsMine)
             {
-                // Check Role: Cannot kill Captain
                 string targetRole = "";
                 if (targetView.Owner.CustomProperties.ContainsKey("Role"))
                     targetRole = (string)targetView.Owner.CustomProperties["Role"];
                 
+                // Can't kill the Captain
                 if (targetRole == "CAPTAIN") 
                 {
-                    if(killUI) killUI.SetActive(false); // Hide if looking at Boss
+                    if(killUI) killUI.SetActive(false);
                     return; 
                 }
 
-                // VALID TARGET FOUND!
-                if(killUI) killUI.SetActive(true); // SHOW "PRESS F"
+                if(killUI) killUI.SetActive(true); 
 
                 if (Input.GetKeyDown(killKey))
                 {
@@ -81,24 +71,21 @@ public class ImposterAbility : MonoBehaviourPun
             }
         }
 
-        // If we hit nothing or a wall, hide UI
         if(killUI) killUI.SetActive(false);
     }
 
     void DoKill(PhotonView target)
     {
-        hasKilledThisRound = true;
+        hasKilled = true;
         if(killUI) killUI.SetActive(false);
 
-        Debug.Log($"Killing {target.Owner.NickName}!");
+        Debug.Log("Kill confirmed on " + target.Owner.NickName);
         target.RPC("RpcGetKilled", RpcTarget.All);
     }
 
     [PunRPC]
     public void RpcGetKilled()
     {
-        // Visuals for death
         gameObject.SetActive(false); 
-        // Optional: Instantiate a dead body prefab here later!
     }
 }

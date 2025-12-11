@@ -12,6 +12,7 @@ public class PlayerSkinController : MonoBehaviour
         if (!database || !modelRoot) return;
 
         if (current) Destroy(current);
+        
         var prefab = database.Get(index);
         if (!prefab) return;
 
@@ -19,7 +20,5 @@ public class PlayerSkinController : MonoBehaviour
         current.transform.localPosition = Vector3.zero;
         current.transform.localRotation = Quaternion.identity;
         current.transform.localScale = Vector3.one;
-
-        Debug.Log($"[PlayerSkin] Applied skin #{index}");
     }
 }

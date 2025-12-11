@@ -16,16 +16,19 @@ public class QuickPunBootstrap : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        PhotonNetwork.JoinOrCreateRoom(
-            roomName,
-            new RoomOptions { MaxPlayers = maxPlayers },
-            TypedLobby.Default
-        );
+        RoomOptions options = new RoomOptions();
+        options.MaxPlayers = maxPlayers;
+
+        PhotonNetwork.JoinOrCreateRoom(roomName, options, TypedLobby.Default);
     }
 
     public override void OnJoinRoomFailed(short returnCode, string message)
-        => Debug.LogError($"Join failed {returnCode}: {message}");
+    {
+        Debug.LogError("Join failed: " + message);
+    }
 
     public override void OnDisconnected(DisconnectCause cause)
-        => Debug.LogWarning($"Disconnected: {cause}");
+    {
+        Debug.LogWarning("Disconnected: " + cause);
+    }
 }

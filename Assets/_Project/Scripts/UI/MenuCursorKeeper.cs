@@ -8,9 +8,9 @@ public class MenuCursorKeeper : MonoBehaviour
         Cursor.visible   = true;
     }
 
-    // If any other script tries to lock during the menu, undo it.
     void LateUpdate()
     {
+        // Force unlock if something else tries to lock it
         if (Cursor.lockState != CursorLockMode.None)
         {
             Cursor.lockState = CursorLockMode.None;
